@@ -16,6 +16,11 @@ jobs:
       latest_version: ${{ steps.get_version.outputs.latest_version }}
       current_version: ${{ steps.check_version.outputs.current_version }}
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@a90bcbc6539c36a85cdfeb73f7e2f433735f215b # v2.15.0
+        with:
+          egress-policy: audit
+
       - name: Checkout repository
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -38,7 +43,7 @@ jobs:
           sed -i "s/GOLANGCI_LINT_VERSION ?= .*/GOLANGCI_LINT_VERSION ?= ${{ steps.get_version.outputs.latest_version }}/" hack/tools/Makefile
       - name: Create Pull Request
         if: ${{ steps.check_version.outputs.current_version != steps.get_version.outputs.latest_version }}
-        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # tag=v7.0.8
+        uses: step-security/create-pull-request@e604d57b37b404d8bb34d152fa905e45d003a895 # v8.1.0
         with:
           commit-message: "This commit updates golangci-lint to version v${{ steps.get_version.outputs.latest_version }}."
           title: ":seedling: chore: bump golangci-lint to v${{ steps.get_version.outputs.latest_version }}"
